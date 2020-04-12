@@ -8,6 +8,8 @@ To test:
 cd ~/quicklisp/local-projects 
 git clone https://github.com/cbeo/posterbot posterbot 
 git clone https://github.com/cbeo/granolin granolin
+cd granolin
+git checkout origin/develop
 
 #+END_SRC
 
