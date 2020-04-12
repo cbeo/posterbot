@@ -11,11 +11,11 @@ git clone https://github.com/cbeo/granolin granolin
 
 #+END_SRC
 
-2. fire up lisp and load the posterbot, make a new instance, log in, and start
+2. fire up lisp and load the posterbot system, make a new instance, log in, and start
 
 #+BEGIN_SRC lisp 
 
-(quicklisp:load :posterbot)
+(ql:quickload :posterbot)
 
 (in-package :posterbot)
 
