@@ -33,6 +33,8 @@ the downloaded file."
                   (t type)))))
 
 (defun handle-link-candiate (word)
+  "Checks if WORD is an HTTP URI pointing to an image resource. If it
+is, downloads the image and posts it to the current room."
   (let ((link (ppcre:scan-to-strings +image-link-regex+ word)))
     (when link
       (let* ((file-path (download-link link))

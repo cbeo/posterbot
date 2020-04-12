@@ -21,7 +21,10 @@ git checkout origin/develop
 
 (in-package :posterbot)
 
-(let ((bot (make-instance 'posterbot :ssl nil :user-id "mybotaccount" :homeserver "localhost:8008")))
+(let ((bot (make-instance 'posterbot 
+                          :ssl nil 
+                          :user-id "mybotaccount" 
+                          :homeserver "localhost:8008")))
   (login bot "mybotaccount" "mypassword")
   (start bot))
 
