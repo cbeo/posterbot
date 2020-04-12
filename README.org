@@ -1,0 +1,33 @@
+
+To test:
+
+1. clone this repo and granolin into your =~/quicklisp/local-projects= directory. For example:
+
+#+BEGIN_SRC bash
+
+cd ~/quicklisp/local-projects 
+git clone https://github.com/cbeo/posterbot posterbot 
+git clone https://github.com/cbeo/granolin granolin
+
+#+END_SRC
+
+2. fire up lisp and load the posterbot, make a new instance, log in, and start
+
+#+BEGIN_SRC lisp 
+
+(quicklisp:load :posterbot)
+
+(in-package :posterbot)
+
+(let ((bot (make-instance 'posterbot :ssl nil :user-id "mybotaccount" :homeserver "localhost:8008")))
+  (login bot "mybotaccount" "mypassword")
+  (start bot))
+
+#+END_SRC
+
+3. Invite the bot to a room, it should automatically accept your invitation.
+
+4. Post a link to an image.  The link should end in one of =.gif=, =.jpg=, =.bmp=, =.jpeg=, or =.png=.
+
+
+
