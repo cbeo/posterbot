@@ -62,7 +62,7 @@ is, downloads the image and posts it to the current room."
   (let* ((config (if (uiop:file-exists-p "posterbot.config")
                      (with-open-file (input "posterbot.config")
                        (read input))
-                     (progn (format  t "I think you need a posterbot.config~^")
+                     (progn (format  t "I think you need a posterbot.config~%~%")
                             (return-from start-posterbot))))
          (bot (make-instance 'posterbot
                              :ssl (if (member :ssl config)
