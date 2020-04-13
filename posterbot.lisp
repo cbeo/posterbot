@@ -81,7 +81,9 @@ the downloaded file.  If there is an error thrown at any point, returns NIL."
               (file-stream  (drakma:http-request link :want-stream t)))
           (loop :for bytes = (read-sequence buffer file-stream)
              :while (plusp bytes) :do (write-sequence buffer out))))
-    (error () nil)))
+    (error (c) (progn
+                 (format *error-output* "While downloading image file at ~a.~%Encountered Error: ~a~%~%" link c)
+                 nil))))
 
 
 (defun filename-from-link (link)
