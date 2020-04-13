@@ -69,7 +69,7 @@
                         :case-insensitive-mode t))
 
 (defparameter +giphy-link-regex+
-  (ppcre:create-scanner "https://giphy.com/gifs/.+-([a-zA-Z0-9]+)"
+  (ppcre:create-scanner "https://giphy.com/gifs/([a-z0-9]+-)*([a-zA-Z0-9]+)" 
                         :case-insensitive-mode t))
 
 (defun download-link (link)
@@ -108,7 +108,7 @@ the downloaded file.  If there is an error thrown at any point, returns NIL."
              (ppcre:scan-to-strings +giphy-link-regex+ word)
            (declare (ignore string))
            (when (plusp (length matches))
-             (format nil "https://media.giphy.com/media/~a/giphy.gif" (elt matches 0)))))
+             (format nil "https://media.giphy.com/media/~a/giphy.gif" (elt matches 1)))))
         (t nil)))
 
 (defun handle-link-candiate (word)

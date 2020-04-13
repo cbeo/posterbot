@@ -39,7 +39,9 @@ git clone https://github.com/cbeo/granolin granolin
 
 - Invite the bot to a room, it should automatically accept your invitation.
 
-- Post a link to an image.  The link should end in one of =.gif=, =.jpg=, =.bmp=, =.jpeg=, or =.png=.
+- Post a link to an image.  The link should end in one of =.gif=,
+  =.jpg=, =.bmp=, =.jpeg=, or =.png=.  Likes to giphy also result in a
+  posted gif, so long as the links look like =https://giphy.com/gifs/somethingsomething=
 
 
 
