@@ -4,12 +4,13 @@
 
 (defclass posterbot (client auto-joiner) ())
 
-;; THE MAIN METHOD FOR RESPONDING TO USER TEXT EVENTS
-(defmethod handle-event :after ((*posterbot* posterbot) (event text-message-event))
-  (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
 
 (defvar *posterbot* nil
   "Dynamic variable holding the bot instance. Bound by HANDLE-EVENT.")
+
+;; THE MAIN METHOD FOR RESPONDING TO USER TEXT EVENTS
+(defmethod handle-event :after ((*posterbot* posterbot) (event text-message-event))
+  (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
 
 (defparameter +image-link-regex+
   (ppcre:create-scanner "http.+\.(png|gif|jpeg|bmp|jpg)"
