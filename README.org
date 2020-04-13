@@ -1,4 +1,13 @@
 
+An example matrix bot that posts images.  
+
+If you post a link to a gif but are irked that your matrix client wont
+display the gif as a preview, then this is the bot for you. 
+
+Just post your link in a room and posterbot will make sure your
+glorious gif is seen.
+
+
 *** To test in the repl
 
 1. clone this repo and granolin into your =~/quicklisp/local-projects= directory. For example:
@@ -8,8 +17,6 @@
 cd ~/quicklisp/local-projects 
 git clone https://github.com/cbeo/posterbot posterbot 
 git clone https://github.com/cbeo/granolin granolin
-cd granolin
-git checkout origin/develop
 
 #+END_SRC
 
