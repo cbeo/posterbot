@@ -1,5 +1,5 @@
 
-To test:
+*** To test in the repl
 
 1. clone this repo and granolin into your =~/quicklisp/local-projects= directory. For example:
 
@@ -36,3 +36,42 @@ git checkout origin/develop
 
 
 
+*** To build a "stand alone" bot
+
+1. Get posterbot and granolin into a place where quicklisp can find them, as in 1 above.
+
+2. from a terminal (not from emacs and slime) fire up SBCL, and do the following:
+
+#+BEGIN_SRC lisp
+
+(ql:quickload :posterbot)
+
+(in-package :posterbot)
+
+(sb-ext:save-lisp-and-die #p"posterbot" 
+                          :toplevel #'start-posterbot 
+                          :executable t 
+                          :compression t)
+
+#+END_SRC
+
+3. Make a =posterbot.config= file.  The following is an example:
+
+#+BEGIN_SRC 
+
+(:ssl nil                        ;; in the case of a loca testing server, the default is t
+ :hardcopy "posterbot.hardcopy"  ;; for recovering sessions, this file will be created 
+ :user-id  "posterbot"           ;; the user you have already created on your server for the bot
+ :password "XXXXXXXX"
+ :homeserver "localhost:8008"    ;; or your real one
+)
+#+END_SRC
+
+
+4. Then, from the same directory that the config file is in, just do
+
+#+BEGIN_SRC bash
+
+./posterbot
+
+#+END_SRC
