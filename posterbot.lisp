@@ -56,8 +56,10 @@ is, downloads the image and posts it to the current room."
                            (alexandria:read-file-into-byte-vector file-path) 
                            :content-type (make-mime-type word)))))
         (if mxc-uri
-            (send-image-message *posterbot* *room-id* file-name mxc-uri
-                                :info (list :|mimetype| (make-mime-type word)))
+            (progn
+              (send-image-message *posterbot* *room-id* file-name mxc-uri
+                                  :info (list :|mimetype| (make-mime-type word)))
+              (uiop:delete-file-if-exists file-path))
             (send-text-message *posterbot* *room-id* "I have failed you :("))))))
 
 (defun start-posterbot ()
