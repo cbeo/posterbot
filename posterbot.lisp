@@ -42,10 +42,12 @@ is, downloads the image and posts it to the current room."
              (mxc-uri 
               (upload *posterbot*
                       file-name
-                      (alexandria:read-file-into-byte-vector file-path)
+                      (alexandria:read-file-into-byte-vector file-path) 
                       :content-type (make-mime-type word))))
-        (send-image-message *posterbot* *room-id* file-name mxc-uri
-                            :info (list :|mimetype| (make-mime-type word)))))))
+        (if mxc-uri
+            (send-image-message *posterbot* *room-id* file-name mxc-uri
+                                :info (list :|mimetype| (make-mime-type word)))
+            (send-text-message *posterbot* *room-id* "I have failed you :("))))))
 
 ;; look for links to images, one word at a time, downloading and
 ;; posting any images found to the room at the current *ROOM-ID*
