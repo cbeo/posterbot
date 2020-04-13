@@ -53,3 +53,22 @@ is, downloads the image and posts it to the current room."
 ;; posting any images found to the room at the current *ROOM-ID*
 (defmethod handle-event :after ((*posterbot* posterbot) (event text-message-event))
   (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
+
+
+(defun start-posterbot ()
+  "A start function to pass in as the :toplevel to SAVE-LISP-AND-DIE"
+  (let* ((config (if (uiop:file-exists-p "posterbot.config")
+                     (with-open-file (input "posterbot.config")
+                       (read input))
+                     (progn (format  t "I think you need a posterbot.config~^")
+                            (return-from start-posterbot))))
+         (bot (make-instance 'posterbot
+                             :ssl (if (member :ssl config)
+                                      (getf config :ssl)
+                                      t)
+                             :hardcopy (getf config :hardcopy)
+                             :user-id (gerf config :user-id)
+                             :homeserver (getf config :homeserver))))
+    (when (not (logged-in-p bot))
+      (login bot (getf config :user-id) (getf config :password)))
+    (start bot)))
