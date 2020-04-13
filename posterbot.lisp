@@ -67,7 +67,7 @@ is, downloads the image and posts it to the current room."
                                       (getf config :ssl)
                                       t)
                              :hardcopy (getf config :hardcopy)
-                             :user-id (gerf config :user-id)
+                             :user-id (getf config :user-id)
                              :homeserver (getf config :homeserver))))
     (when (not (logged-in-p bot))
       (login bot (getf config :user-id) (getf config :password)))
