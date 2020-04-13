@@ -16,9 +16,13 @@
   (ppcre:create-scanner "http.+\\\.(png|gif|jpeg|bmp|jpg)$"
                         :case-insensitive-mode t))
 
+(defparameter +giphy-link-regex+
+  (ppcre:create-scanner "https://giphy.com/gifs/.+-([a-zA-Z0-9]+)"
+                        :case-insensitive-mode t))
+
 (defun download-link (link)
   "Downloads the file at LINK to a temporary file. Returns the path to
-the downloaded file."
+the downloaded file.  If there is an error thrown at any point, returns NIL."
   (handler-case 
       (cl-fad:with-output-to-temporary-file (out :element-type '(unsigned-byte 8))
         (let ((buffer (make-array 4096 :element-type '(unsigned-byte 8)))
@@ -42,10 +46,21 @@ the downloaded file."
                   (t type)))))
 
 
+(defun check-word-for-link (word)
+  (cond ((ppcre:scan-to-strings +image-link-regex+ word)
+         (ppcre:scan-to-strings +image-link-regex+ word))
+        ((ppcre:scan-to-strings +giphy-link-regex+ word)
+         (multiple-value-bind (string matches)
+             (ppcre:scan-to-strings +giphy-link-regex+ word)
+           (declare (ignore string))
+           (when (plusp (length matches))
+             (format nil "https://media.giphy.com/media/~a/giphy.gif" (elt matches 0)))))
+        (t nil)))
+
 (defun handle-link-candiate (word)
   "Checks if WORD is an HTTP URI pointing to an image resource. If it
 is, downloads the image and posts it to the current room."
-  (let ((link (ppcre:scan-to-strings +image-link-regex+ word)))
+  (let ((link (check-word-for-link word)))
     (when link
       (let* ((file-path (download-link link))
              (file-name (filename-from-link link))
@@ -54,11 +69,11 @@ is, downloads the image and posts it to the current room."
                    (upload *posterbot*
                            file-name
                            (alexandria:read-file-into-byte-vector file-path) 
-                           :content-type (make-mime-type word)))))
+                           :content-type (make-mime-type file-name)))))
         (if mxc-uri
             (progn
               (send-image-message *posterbot* *room-id* file-name mxc-uri
-                                  :info (list :|mimetype| (make-mime-type word)))
+                                  :info (list :|mimetype| (make-mime-type file-name)))
               (uiop:delete-file-if-exists file-path))
             (send-text-message *posterbot* *room-id* "I have failed you :("))))))
 
