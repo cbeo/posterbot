@@ -13,7 +13,7 @@
   (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
 
 (defparameter +image-link-regex+
-  (ppcre:create-scanner "http.+\.(png|gif|jpeg|bmp|jpg)"
+  (ppcre:create-scanner "http.+\.(png|gif|jpeg|bmp|jpg)$"
                         :case-insensitive-mode t))
 
 (defun download-link (link)
