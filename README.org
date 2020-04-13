@@ -10,7 +10,7 @@ glorious gif is seen.
 
 *** To test in the repl
 
-1. clone this repo and granolin into your =~/quicklisp/local-projects= directory. For example:
+- Clone this repo and granolin into your =~/quicklisp/local-projects= directory. For example:
 
 #+BEGIN_SRC bash
 
@@ -20,7 +20,7 @@ git clone https://github.com/cbeo/granolin granolin
 
 #+END_SRC
 
-2. fire up lisp and load the posterbot system, make a new instance, log in, and start
+- Fire up lisp and load the posterbot system, make a new instance, log in, and start
 
 #+BEGIN_SRC lisp 
 
@@ -37,17 +37,17 @@ git clone https://github.com/cbeo/granolin granolin
 
 #+END_SRC
 
-3. Invite the bot to a room, it should automatically accept your invitation.
+- Invite the bot to a room, it should automatically accept your invitation.
 
-4. Post a link to an image.  The link should end in one of =.gif=, =.jpg=, =.bmp=, =.jpeg=, or =.png=.
+- Post a link to an image.  The link should end in one of =.gif=, =.jpg=, =.bmp=, =.jpeg=, or =.png=.
 
 
 
 *** To build a "stand alone" bot
 
-1. Get posterbot and granolin into a place where quicklisp can find them, as in 1 above.
+- Get posterbot and granolin into a place where quicklisp can find them, as in 1 above.
 
-2. from a terminal (not from emacs and slime) fire up SBCL, and do the following:
+- From a terminal (not from emacs and slime) fire up SBCL, and do the following:
 
 #+BEGIN_SRC lisp
 
@@ -62,7 +62,7 @@ git clone https://github.com/cbeo/granolin granolin
 
 #+END_SRC
 
-3. Make a =posterbot.config= file.  The following is an example:
+- Make a =posterbot.config= file.  The following is an example:
 
 #+BEGIN_SRC 
 
@@ -74,8 +74,7 @@ git clone https://github.com/cbeo/granolin granolin
 )
 #+END_SRC
 
-
-4. Then, from the same directory that the config file is in, just do
+- Then, from the same directory that the config file is in, just do
 
 #+BEGIN_SRC bash
 
