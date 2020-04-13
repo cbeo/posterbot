@@ -2,15 +2,67 @@
 
 (in-package #:posterbot)
 
-(defclass posterbot (client auto-joiner) ())
+;;; An Example Bot with Granolin:
+;;; 
+;;; A bot is a class that extends granolin:client.  There are several
+;;; "plug-in" classes that you can also extend, each one implements a
+;;; self-contained functionality that might be useful.  For example,
+;;; the posterbot class that is defined below extends the
+;;; granolin:auto-joiner plugin.  An instance of a class extending
+;;; auto-joiner will join any room to which it is invited.
 
+(defclass posterbot (client auto-joiner) ())
 
 (defvar *posterbot* nil
   "Dynamic variable holding the bot instance. Bound by HANDLE-EVENT.")
 
-;; THE MAIN METHOD FOR RESPONDING TO USER TEXT EVENTS
+;;; All you need to do to plug your bot into granolin's logic is
+;;; specialize HANDLE-EVENT :AFTER or HANDLE-EVENT :BEFORE methods on
+;;; your bot class.
+
+;;; Granolin defines a number of event types, and you can specialize
+;;; HANDLE-EVENT for each one. The folling handler is specialized for
+;;; TEXT-MESSAGE-EVENT.
+;;;
+;;; Within the extent of a HANDLE-EVENT call, the special variable
+;;; *ROOM-ID* is bound to the id of the matrix room where the EVENT
+;;; occurred.
+
 (defmethod handle-event :after ((*posterbot* posterbot) (event text-message-event))
   (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
+
+
+
+;;; Finally, when you want to use a bot - you make an instance of your
+;;; class and call the GRANOLIN:LOGIN method on it, and, assuming the
+;;; login is successful, GRANOLIN:START, which will begin polling the
+;;; homeserver for messages.
+;;;
+;;; Instantiating a bot instance accepts a few paramters, like
+;;; :USER-ID and :HOMESERVER, which should be self explanatory.
+;;; 
+;;; The :HARDCOPY parameter is the name of a file where bot state will
+;;; be saved if it is stopped or if it dies.  You can use this
+;;; "hardcopy" to resume your bot.
+
+(defun start-posterbot ()
+  "A start function to pass in as the :toplevel to SAVE-LISP-AND-DIE"
+  (let* ((config (if (uiop:file-exists-p "posterbot.config")
+                     (with-open-file (input "posterbot.config")
+                       (read input))
+                     (progn (format  t "I think you need a posterbot.config~%~%")
+                            (return-from start-posterbot))))
+         (bot (make-instance 'posterbot
+                             :ssl (if (member :ssl config)
+                                      (getf config :ssl)
+                                      t)
+                             :hardcopy (getf config :hardcopy)
+                             :user-id (getf config :user-id)
+                             :homeserver (getf config :homeserver))))
+    (when (not (logged-in-p bot))
+      (login bot (getf config :user-id) (getf config :password)))
+    (start bot)))
+
 
 (defparameter +image-link-regex+
   (ppcre:create-scanner "http.+\\\.(png|gif|jpeg|bmp|jpg)$"
@@ -77,20 +129,3 @@ is, downloads the image and posts it to the current room."
               (uiop:delete-file-if-exists file-path))
             (send-text-message *posterbot* *room-id* "I have failed you :("))))))
 
-(defun start-posterbot ()
-  "A start function to pass in as the :toplevel to SAVE-LISP-AND-DIE"
-  (let* ((config (if (uiop:file-exists-p "posterbot.config")
-                     (with-open-file (input "posterbot.config")
-                       (read input))
-                     (progn (format  t "I think you need a posterbot.config~%~%")
-                            (return-from start-posterbot))))
-         (bot (make-instance 'posterbot
-                             :ssl (if (member :ssl config)
-                                      (getf config :ssl)
-                                      t)
-                             :hardcopy (getf config :hardcopy)
-                             :user-id (getf config :user-id)
-                             :homeserver (getf config :homeserver))))
-    (when (not (logged-in-p bot))
-      (login bot (getf config :user-id) (getf config :password)))
-    (start bot)))
