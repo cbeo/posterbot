@@ -4,6 +4,10 @@
 
 (defclass posterbot (client auto-joiner) ())
 
+;; THE MAIN METHOD FOR RESPONDING TO USER TEXT EVENTS
+(defmethod handle-event :after ((*posterbot* posterbot) (event text-message-event))
+  (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
+
 (defvar *posterbot* nil
   "Dynamic variable holding the bot instance. Bound by HANDLE-EVENT.")
 
@@ -20,9 +24,11 @@ the downloaded file."
       (loop :for bytes = (read-sequence buffer file-stream)
          :while (plusp bytes) :do (write-sequence buffer out)))))
 
+
 (defun filename-from-link (link)
   "Extracts the filename of a link. I.e. everything after the last / character."
   (first (last (ppcre:split "/" link))))
+
 
 (defun make-mime-type (filename)
   "Given a string FILENAME, returns a string representing a sensible guess for a mimetype."
@@ -31,6 +37,7 @@ the downloaded file."
             (cond ((member type '("jpg" "jpeg") :test #'equal) "jpeg")
                   ((equal type "svg") "svg+xml")
                   (t type)))))
+
 
 (defun handle-link-candiate (word)
   "Checks if WORD is an HTTP URI pointing to an image resource. If it
@@ -48,12 +55,6 @@ is, downloads the image and posts it to the current room."
             (send-image-message *posterbot* *room-id* file-name mxc-uri
                                 :info (list :|mimetype| (make-mime-type word)))
             (send-text-message *posterbot* *room-id* "I have failed you :("))))))
-
-;; look for links to images, one word at a time, downloading and
-;; posting any images found to the room at the current *ROOM-ID*
-(defmethod handle-event :after ((*posterbot* posterbot) (event text-message-event))
-  (mapc #'handle-link-candiate (ppcre:split " " (msg-body event))))
-
 
 (defun start-posterbot ()
   "A start function to pass in as the :toplevel to SAVE-LISP-AND-DIE"
