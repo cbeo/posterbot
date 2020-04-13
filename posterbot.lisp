@@ -19,11 +19,13 @@
 (defun download-link (link)
   "Downloads the file at LINK to a temporary file. Returns the path to
 the downloaded file."
-  (cl-fad:with-output-to-temporary-file (out :element-type '(unsigned-byte 8))
-    (let ((buffer (make-array 4096 :element-type '(unsigned-byte 8)))
-          (file-stream  (drakma:http-request link :want-stream t)))
-      (loop :for bytes = (read-sequence buffer file-stream)
-         :while (plusp bytes) :do (write-sequence buffer out)))))
+  (handler-case 
+      (cl-fad:with-output-to-temporary-file (out :element-type '(unsigned-byte 8))
+        (let ((buffer (make-array 4096 :element-type '(unsigned-byte 8)))
+              (file-stream  (drakma:http-request link :want-stream t)))
+          (loop :for bytes = (read-sequence buffer file-stream)
+             :while (plusp bytes) :do (write-sequence buffer out))))
+    (error () nil)))
 
 
 (defun filename-from-link (link)
@@ -48,10 +50,11 @@ is, downloads the image and posts it to the current room."
       (let* ((file-path (download-link link))
              (file-name (filename-from-link link))
              (mxc-uri 
-              (upload *posterbot*
-                      file-name
-                      (alexandria:read-file-into-byte-vector file-path) 
-                      :content-type (make-mime-type word))))
+              (and file-path
+                   (upload *posterbot*
+                           file-name
+                           (alexandria:read-file-into-byte-vector file-path) 
+                           :content-type (make-mime-type word)))))
         (if mxc-uri
             (send-image-message *posterbot* *room-id* file-name mxc-uri
                                 :info (list :|mimetype| (make-mime-type word)))
