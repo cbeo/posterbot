@@ -73,7 +73,7 @@
                         :case-insensitive-mode t))
 
 (defparameter +tenor-link-regex+
-  (ppcre:create-scanner "https://tenor.com/view/.+"
+  (ppcre:create-scanner "(https://tenor.com/view/.+$)|(https://tenor.com/[a-zA-Z0-9]+.gif$)"
                         :case-insensitive-mode t))
 
 (defun download-link (link)
@@ -119,20 +119,21 @@ the downloaded file.  If there is an error thrown at any point, returns NIL."
               e))))
 
 (defun check-word-for-link (word)
-  (cond ((ppcre:scan-to-strings +image-link-regex+ word)
-         (ppcre:scan-to-strings +image-link-regex+ word))
+  (cond 
+    ((ppcre:scan-to-strings +giphy-link-regex+ word)
+     (multiple-value-bind (string matches)
+         (ppcre:scan-to-strings +giphy-link-regex+ word)
+       (declare (ignore string))
+       (when (plusp (length matches))
+         (format nil "https://media.giphy.com/media/~a/giphy.gif" (elt matches 1)))))
 
-        ((ppcre:scan-to-strings +giphy-link-regex+ word)
-         (multiple-value-bind (string matches)
-             (ppcre:scan-to-strings +giphy-link-regex+ word)
-           (declare (ignore string))
-           (when (plusp (length matches))
-             (format nil "https://media.giphy.com/media/~a/giphy.gif" (elt matches 1)))))
+    ((ppcre:scan-to-strings +tenor-link-regex+ word)
+     (fetch-link-from-tenor-page word))
 
-        ((ppcre:scan-to-strings +tenor-link-regex+ word)
-         (fetch-link-from-tenor-page word))
+    ((ppcre:scan-to-strings +image-link-regex+ word)
+     (ppcre:scan-to-strings +image-link-regex+ word))
 
-        (t nil)))
+    (t nil)))
 
 (defun handle-link-candiate (word)
   "Checks if WORD is an HTTP URI pointing to an image resource. If it
