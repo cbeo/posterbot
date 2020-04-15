@@ -6,6 +6,6 @@
   :license  "AGPL"
   :version "0.0.1"
   :serial t
-  :depends-on (#:granolin #:cl-ppcre #:alexandria #:cl-fad #:drakma)
+  :depends-on (#:granolin #:cl-ppcre #:alexandria #:cl-fad #:drakma #:plump #:clss)
   :components ((:file "package")
                (:file "posterbot")))

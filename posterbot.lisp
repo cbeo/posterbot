@@ -72,6 +72,10 @@
   (ppcre:create-scanner "https://giphy.com/gifs/([a-z0-9]+-)*([a-zA-Z0-9]+)" 
                         :case-insensitive-mode t))
 
+(defparameter +tenor-link-regex+
+  (ppcre:create-scanner "https://tenor.com/view/.+"
+                        :case-insensitive-mode t))
+
 (defun download-link (link)
   "Downloads the file at LINK to a temporary file. Returns the path to
 the downloaded file.  If there is an error thrown at any point, returns NIL."
@@ -81,9 +85,10 @@ the downloaded file.  If there is an error thrown at any point, returns NIL."
               (file-stream  (drakma:http-request link :want-stream t)))
           (loop :for bytes = (read-sequence buffer file-stream)
              :while (plusp bytes) :do (write-sequence buffer out))))
-    (error (c) (progn
-                 (format *error-output* "While downloading image file at ~a.~%Encountered Error: ~a~%~%" link c)
-                 nil))))
+    (error (c)
+      (format *error-output*
+              "While downloading image file at ~a.~%Encountered Error: ~a~%~%"
+              link c))))
 
 
 (defun filename-from-link (link)
@@ -99,16 +104,34 @@ the downloaded file.  If there is an error thrown at any point, returns NIL."
                   ((equal type "svg") "svg+xml")
                   (t type)))))
 
+(defun fetch-link-from-tenor-page (page-uri)
+  "Scrapes an image link from a the HTML served up by tenor."
+  (handler-case
+      (let* ((dom (plump:parse (drakma:http-request page-uri)))
+             (elems (clss:select "#single-gif-container .Gif > img" dom)))
+        (and (plusp (length elems))
+             (plump:attribute (elt elems 0) "src")
+             (first (ppcre:split "\\\?"  (plump:attribute (elt elems 0) "src")))))
+    (error (e)
+      (format *error-output*
+              "Error while processing tenor link ~a~%Error: ~a~%~%"
+              page-uri
+              e))))
 
 (defun check-word-for-link (word)
   (cond ((ppcre:scan-to-strings +image-link-regex+ word)
          (ppcre:scan-to-strings +image-link-regex+ word))
+
         ((ppcre:scan-to-strings +giphy-link-regex+ word)
          (multiple-value-bind (string matches)
              (ppcre:scan-to-strings +giphy-link-regex+ word)
            (declare (ignore string))
            (when (plusp (length matches))
              (format nil "https://media.giphy.com/media/~a/giphy.gif" (elt matches 1)))))
+
+        ((ppcre:scan-to-strings +tenor-link-regex+ word)
+         (fetch-link-from-tenor-page word))
+
         (t nil)))
 
 (defun handle-link-candiate (word)
