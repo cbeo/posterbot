@@ -76,6 +76,11 @@
   (ppcre:create-scanner "(https://tenor.com/view/.+$)|(https://tenor.com/[a-zA-Z0-9]+.gif$)"
                         :case-insensitive-mode t))
 
+;; e.g. "https://images.app.goo.gl/5S8RGSdZajBxe83W6"
+(defparameter +google-image-share-link+
+  (ppcre:create-scanner "https://images.app.goo.gl/.+"
+                        :case-insensitive-mode t))
+
 (defun download-link (link)
   "Downloads the file at LINK to a temporary file. Returns the path to
 the downloaded file.  If there is an error thrown at any point, returns NIL."
@@ -118,8 +123,28 @@ the downloaded file.  If there is an error thrown at any point, returns NIL."
               page-uri
               e))))
 
+(defun fetch-link-from-google-image-page (page-uri)
+  "Scrapes an image link provided from a google image search's share button"
+  (handler-case
+      (let* ((dom (plump:parse (drakma:http-request page-uri)))
+             (elems (clss:select "img" dom)))
+        (and (< 1 (length elems))
+             (plump:attribute (elt elems 1) "src")
+             (ppcre:scan-to-strings +image-link-regex+
+                                    (plump:attribute (elt elems 1) "src"))))
+    (error (e)
+      (format *error-output*
+              "Error while processing google image share link: ~a~%Error: ~a~%~%"
+              page-uri
+              e))))
+
+
 (defun check-word-for-link (word)
-  (cond 
+  (cond
+
+    ((ppcre:scan-to-strings +google-image-share-link+ word)
+     (fetch-link-from-google-image-page word))
+
     ((ppcre:scan-to-strings +giphy-link-regex+ word)
      (multiple-value-bind (string matches)
          (ppcre:scan-to-strings +giphy-link-regex+ word)
