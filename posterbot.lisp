@@ -178,5 +178,5 @@ is, downloads the image and posts it to the current room."
               (send-image-message *posterbot* *room-id* file-name mxc-uri
                                   :info (list :|mimetype| (make-mime-type file-name)))
               (uiop:delete-file-if-exists file-path))
-            (send-text-message *posterbot* *room-id* "I have failed you :("))))))
+            (send-text-message *posterbot* *room-id* "I have failed you 🤖"))))))
 
