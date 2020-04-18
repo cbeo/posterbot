@@ -65,7 +65,7 @@
 
 
 (defparameter +image-link-regex+
-  (ppcre:create-scanner "http.+\\\.(png|gif|jpeg|bmp|jpg)$"
+  (ppcre:create-scanner "http.+\\\.(png|gif|jpeg|bmp|jpg)"
                         :case-insensitive-mode t))
 
 (defparameter +giphy-link-regex+
